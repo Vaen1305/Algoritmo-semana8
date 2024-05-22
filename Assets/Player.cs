@@ -10,6 +10,8 @@ public class PlayerMovement : MonoBehaviour
     public float stamina = 100f;
     public float staminaDrainRate = 1f;
     public float lowStaminaSpeedMultiplier = 0.5f;
+    public float staminaRechargeTime = 5f; 
+    private float staminaRechargeTimer = 0f; 
 
     void Update()
     {
@@ -31,6 +33,16 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
+            if (stamina < 100f)
+            {
+                staminaRechargeTimer += Time.deltaTime;
+                if (staminaRechargeTimer >= staminaRechargeTime)
+                {
+                    stamina = 100f;
+                    staminaRechargeTimer = 0f;
+                }
+            }
+
             if (timer <= -10f)
             {
                 RestartMovement();
@@ -53,14 +65,12 @@ public class PlayerMovement : MonoBehaviour
     private void StopMovement()
     {
         isMoving = false;
-        timer = 1.5f;
-
-        stamina = 5f;
+        timer = 10f;
     }
 
     private void RestartMovement()
     {
         isMoving = true;
-        timer = 3f;
+        timer = 20f;
     }
 }
