@@ -10,10 +10,44 @@ public class PlayerMovement : MonoBehaviour
     public float stamina = 100f;
     public float staminaDrainRate = 1f;
     public float lowStaminaSpeedMultiplier = 0.5f;
-    public float staminaRechargeTime = 5f; 
-    private float staminaRechargeTimer = 0f; 
+    public float staminaRechargeTime = 5f;
+    private float staminaRechargeTimer = 0f;
+
+    public float pursuitStaminaDrainRate = 2f;
+    public GameObject player;
+    public float visionRadius = 5f;
+
+    private bool isPursuing = false;
+    private Vector2 initialPosition;
+
+    void Start()
+    {
+        initialPosition = transform.position;
+    }
 
     void Update()
+    {
+        if (isPursuing)
+        {
+            PursuePlayer();
+        }
+        else
+        {
+            Patrol();
+        }
+
+        if (Vector2.Distance(transform.position, player.transform.position) <= visionRadius)
+        {
+            isPursuing = true;
+        }
+        else if (isPursuing)
+        {
+            isPursuing = false;
+            objetivo = null;
+        }
+    }
+
+    void Patrol()
     {
         if (isMoving)
         {
@@ -26,31 +60,60 @@ public class PlayerMovement : MonoBehaviour
             }
             else
             {
-                float speedMultiplier = 1f;
-                transform.position = Vector2.SmoothDamp(transform.position, objetivo.transform.position, ref speedReference, 0.5f / speedMultiplier);
+                MoveTowardsObjective();
                 timer -= Time.deltaTime;
             }
         }
         else
         {
-            if (stamina < 100f)
-            {
-                staminaRechargeTimer += Time.deltaTime;
-                if (staminaRechargeTimer >= staminaRechargeTime)
-                {
-                    stamina = 100f;
-                    staminaRechargeTimer = 0f;
-                }
-            }
+            RechargeStamina();
+        }
+    }
 
-            if (timer <= -10f)
+    void PursuePlayer()
+    {
+        stamina -= pursuitStaminaDrainRate * Time.deltaTime;
+        stamina = Mathf.Max(stamina, 0f);
+
+        if (stamina <= 0f)
+        {
+            StopMovement();
+        }
+        else
+        {
+            transform.position = Vector2.MoveTowards(transform.position, player.transform.position, pursuitStaminaDrainRate * Time.deltaTime);
+        }
+    }
+
+    void MoveTowardsObjective()
+    {
+        if (objetivo != null)
+        {
+            float speedMultiplier = (stamina <= 20f) ? lowStaminaSpeedMultiplier : 1f;
+            transform.position = Vector2.SmoothDamp(transform.position, objetivo.transform.position, ref speedReference, 0.5f / speedMultiplier);
+        }
+    }
+
+    void RechargeStamina()
+    {
+        if (stamina < 100f)
+        {
+            staminaRechargeTimer += Time.deltaTime;
+            if (staminaRechargeTimer >= staminaRechargeTime)
             {
+                stamina = 100f;
+                staminaRechargeTimer = 0f;
                 RestartMovement();
             }
-            else
-            {
-                timer -= Time.deltaTime;
-            }
+        }
+
+        if (timer <= -10f)
+        {
+            RestartMovement();
+        }
+        else
+        {
+            timer -= Time.deltaTime;
         }
     }
 
@@ -58,7 +121,23 @@ public class PlayerMovement : MonoBehaviour
     {
         if (collision.CompareTag("Node") && isMoving)
         {
-            objetivo = collision.gameObject.GetComponent<NodeController>().SelecRandomAdjacent().gameObject;
+            NodeController nodeController = collision.gameObject.GetComponent<NodeController>();
+            if (nodeController != null)
+            {
+                NodeController nextNode = nodeController.SelectRandomAdjacent();
+                if (nextNode != null)
+                {
+                    objetivo = nextNode.gameObject;
+                }
+                else
+                {
+
+                }
+            }
+            else
+            {
+
+            }
         }
     }
 

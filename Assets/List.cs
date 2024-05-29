@@ -25,7 +25,7 @@ public class List : MonoBehaviour
             Node node = new Node(value);
             node.Next = head;
             head = node;
-            length = length + 1;
+            length++;
         }
 
         public void InsertAtEnd(T value)
@@ -39,7 +39,7 @@ public class List : MonoBehaviour
                 Node lastNode = GetLastNode();
                 Node newNode = new Node(value);
                 lastNode.Next = newNode;
-                length = length + 1;
+                length++;
             }
         }
 
@@ -51,7 +51,7 @@ public class List : MonoBehaviour
             }
             else if (position >= length)
             {
-
+                InsertAtEnd(value);
             }
             else
             {
@@ -60,12 +60,12 @@ public class List : MonoBehaviour
                 while (iterator < position - 1)
                 {
                     nodePosition = nodePosition.Next;
-                    iterator = iterator + 1;
+                    iterator++;
                 }
                 Node newNode = new Node(value);
                 newNode.Next = nodePosition.Next;
                 nodePosition.Next = newNode;
-                length = length + 1;
+                length++;
             }
         }
 
@@ -73,14 +73,14 @@ public class List : MonoBehaviour
         {
             if (head == null)
             {
-
+                return;
             }
             else
             {
                 Node newHead = head.Next;
                 head.Next = null;
                 head = newHead;
-                length = length - 1;
+                length--;
             }
         }
 
@@ -98,7 +98,7 @@ public class List : MonoBehaviour
                     nodePosition = nodePosition.Next;
                 }
                 nodePosition.Next = null;
-                length = length - 1;
+                length--;
             }
         }
 
@@ -110,7 +110,7 @@ public class List : MonoBehaviour
             }
             else if (position >= length)
             {
-
+                return;
             }
             else
             {
@@ -119,12 +119,12 @@ public class List : MonoBehaviour
                 while (iterator < position - 1)
                 {
                     nodePosition = nodePosition.Next;
-                    iterator = iterator + 1;
+                    iterator++;
                 }
                 Node nodeToDelete = nodePosition.Next;
                 nodePosition.Next = nodeToDelete.Next;
                 nodeToDelete.Next = null;
-                length = length - 1;
+                length--;
             }
         }
 
@@ -143,7 +143,6 @@ public class List : MonoBehaviour
             Node tmp = head;
             while (tmp != null)
             {
-                Debug.Log(tmp.Value + " ");
                 tmp = tmp.Next;
             }
         }
@@ -152,6 +151,7 @@ public class List : MonoBehaviour
         {
             if (position < 0 || position >= length)
             {
+                return default(T);
             }
 
             Node current = head;

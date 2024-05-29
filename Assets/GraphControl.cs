@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,18 +9,19 @@ public class GraphControl : MonoBehaviour
     public string[] currentNodePostion;
     public List.SingleLinkedList<GameObject> allNodes;
 
-
     public TextAsset nodeConectionsTxt;
     public string[] arrayNodeConection;
     public string[] currentNodeConection;
 
     public PlayerMovement player;
+
     void Start()
     {
         CreateNodes();
-        CreateConections();
-        SelecInitialNode();
+        CreateConnections();
+        SelectInitialNode();
     }
+
     void CreateNodes()
     {
         allNodes = new List.SingleLinkedList<GameObject>();
@@ -39,23 +39,25 @@ public class GraphControl : MonoBehaviour
         allNodes.PrintAllNodes();
     }
 
-    void CreateConections()
+    void CreateConnections()
     {
         if (nodeConectionsTxt != null)
         {
             arrayNodeConection = nodeConectionsTxt.text.Split('\n');
             for (int i = 0; i < arrayNodeConection.Length; ++i)
             {
-                currentNodeConection = arrayNodeConection[i].Split(",");
-                for (int j = 0; j < currentNodeConection.Length; ++j)
+                currentNodeConection = arrayNodeConection[i].Split(',');
+                for (int j = 0; j < currentNodeConection.Length; j += 2)
                 {
-                    allNodes.GetElementAt(i).GetComponent<NodeController>().AddAdjacentNode(allNodes.GetElementAt(int.Parse(currentNodeConection[j])).GetComponent<NodeController>());
-                    Debug.Log(allNodes.GetElementAt(i));
+                    int adjacentIndex = int.Parse(currentNodeConection[j]);
+                    float weight = float.Parse(currentNodeConection[j + 1]);
+                    allNodes.GetElementAt(i).GetComponent<NodeController>().AddAdjacentNode(allNodes.GetElementAt(adjacentIndex).GetComponent<NodeController>(), weight);
                 }
             }
         }
     }
-    void SelecInitialNode()
+
+    void SelectInitialNode()
     {
         int index = Random.Range(0, allNodes.Count);
         player.objetivo = allNodes.GetElementAt(index);
